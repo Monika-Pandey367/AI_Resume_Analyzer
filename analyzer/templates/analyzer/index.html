@@ -1,0 +1,455 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Resume Analyzer</title>
+
+    <link rel="stylesheet" href="{% static 'analyzer/style.css' %}">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <h1>AI Resume Analyzer</h1>
+
+            <nav class="navbar">
+                <a href="{% url 'home' %}">Home</a>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'history' %}">Analysis History</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'register' %}">Register</a>
+                    <a href="{% url 'login' %}">Login</a>
+                {% endif %}
+            </nav>
+
+            <p class="hero-description">
+                Find your perfect job match.
+
+                Analyze your resume. Discover skill gaps. Get career-ready.            
+            </p>        
+        </div>
+    </header>
+
+    <main class="container">
+<!-- About the Project -->
+ {% if not user.is_authenticated %}
+<section class="project-about" id="about">
+
+    <div class="project-about-heading">
+        <span class="project-eyebrow">ABOUT THE PROJECT</span>
+
+        <h2>A Smarter Way to Prepare Your Resume</h2>
+
+        <p>
+            Understand how your resume aligns with a job description,
+            identify missing technical skills, and discover areas for improvement.
+        </p>
+    </div>
+<section class="features-section" id="features">
+    <div class="project-features-grid">
+
+        <!-- Feature 1 -->
+        <div class="project-feature-card">
+            <div class="project-feature-icon icon-blue">📄</div>
+            <h3>Resume Analysis</h3>
+            <p>
+                Upload your PDF resume and extract recognized
+                technical skills automatically.
+            </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="project-feature-card">
+            <div class="project-feature-icon icon-purple">📊</div>
+            <h3>Skill Match Score</h3>
+            <p>
+                See the percentage of skills from the job description
+                that are also present in your resume.
+            </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="project-feature-card">
+            <div class="project-feature-icon icon-green">🎯</div>
+            <h3>Skill Gap Analysis</h3>
+            <p>
+                Identify matched and missing skills to understand
+                how your resume compares with the job requirements.
+            </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="project-feature-card">
+            <div class="project-feature-icon icon-orange">💡</div>
+            <h3>Improvement Tips</h3>
+            <p>
+                Get recommendations based on the skills identified
+                as missing from your resume.
+            </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="project-feature-card">
+            <div class="project-feature-icon icon-pink">📥</div>
+            <h3>PDF Reports</h3>
+            <p>
+                Download a report containing your analysis score,
+                matched skills, and missing skills.
+            </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="project-feature-card">
+            <div class="project-feature-icon icon-teal">🕒</div>
+            <h3>Analysis History</h3>
+            <p>
+                View your previously saved analyses whenever
+                you sign in to your account.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+{% endif %}
+<section class="form-card">
+            <h2>Analyze Your Resume</h2>
+
+            {% if error %}
+                <div class="error-message" role="alert">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="resume">Upload Resume PDF</label>
+
+                    <input
+                        type="file"
+                        id="resume"
+                        name="resume"
+                        accept=".pdf,application/pdf"
+                        required
+                    >
+                </div>
+
+                {% if message %}
+                    <div class="error-message" role="alert">
+                        <span class="error-icon">!</span>
+                        <div class="error-content">
+                            <strong>Invalid File</strong>
+                            <p>{{ message }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="job_description">Job Description</label>
+
+                    <textarea
+                        id="job_description"
+                        name="job_description"
+                        rows="10"
+                        placeholder="Paste the complete job description here..."
+                        required
+                    ></textarea>
+                </div>
+
+                <button type="submit" class="analyze-button">
+                    Analyze Resume
+                </button>
+            </form>
+        </section>
+
+        {% if analysis_done %}
+
+            {% if matched_skills %}
+
+                <!-- ATS score and chart -->
+                <section class="score-card">
+                    <p class="score-label">Skill Match Score</p>
+
+                    <h2 class="score-value">
+                        ATS Score: {{ ats_score }}%
+                    </h2>
+
+                    <p>
+                        <strong>Status:</strong> {{ ats_status }}
+                    </p>
+
+                    <div class="progress-container">
+                        <div
+                            class="progress-bar"
+                            style="width: {{ ats_score }}%;"
+                        ></div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-body text-center">
+                            <h4>Resume Skill Analysis</h4>
+
+                            <div style="width:300px; height:300px; margin:auto;">
+                                <canvas id="skillcharts"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Skill analysis cards -->
+                <section class="result-grid">
+
+                    <div class="result-card">
+                        <div class="card-heading">
+                            <h2>Resume Skills</h2>
+                            <span class="count-badge">
+                                {{ detected_skills|length }}
+                            </span>
+                        </div>
+
+                        {% if detected_skills %}
+                            <div class="skill-container">
+                                {% for skill in detected_skills %}
+                                    <span class="skill resume-skill">
+                                        {{ skill }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="empty-message">
+                                No known skills were detected in the resume.
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <div class="result-card">
+                        <div class="card-heading">
+                            <h2>Job Description Skills</h2>
+                            <span class="count-badge">
+                                {{ jd_skills|length }}
+                            </span>
+                        </div>
+
+                        <div class="skill-container">
+                            {% for skill in jd_skills %}
+                                <span class="skill job-skill">
+                                    {{ skill }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="result-card matched-card">
+                        <div class="card-heading">
+                            <h2>Matched Skills</h2>
+                            <span class="count-badge">
+                                {{ matched_skills|length }}
+                            </span>
+                        </div>
+
+                        <div class="skill-container">
+                            {% for skill in matched_skills %}
+                                <span class="skill matched-skill">
+                                    ✓ {{ skill }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="result-card missing-card">
+                        <div class="card-heading">
+                            <h2>Missing Skills</h2>
+                            <span class="count-badge">
+                                {{ missing_skills|length }}
+                            </span>
+                        </div>
+
+                        {% if missing_skills %}
+                            <div class="skill-container">
+                                {% for skill in missing_skills %}
+                                    <span class="skill missing-skill">
+                                        ✕ {{ skill }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="success-message">
+                                Great! No required skills are missing.
+                            </p>
+                        {% endif %}
+                    </div>
+
+                </section>
+
+                <!-- Recommendations -->
+                {% if recommendations %}
+                    <section class="result-card recommendation-card">
+                        <div class="card-heading">
+                            <h2>Recommendations</h2>
+                            <span class="count-badge">
+                                {{ recommendations|length }}
+                            </span>
+                        </div>
+
+                        <ul class="Recommendation-list">
+                            {% for recommendation in recommendations %}
+                                <li>{{ recommendation }}</li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                {% endif %}
+
+                <!-- Download report only when at least one skill matches -->
+
+            <a href="{% url 'download_pdf' %}" class="btn btn-success download-report-btn">
+                <span class="action-icon">↓</span>
+                Download Report
+            </a>
+
+            {% if guest_message %}
+                <div class="analysis-actions">
+                    <div class="guest-save-card" role="status">
+                        <div class="guest-save-content">
+                            <strong>Keep your results for later</strong>
+                            <p>{{ guest_message }}</p>
+                        </div>
+
+                        <div class="guest-save-links">
+                            <a href="{% url 'register' %}" class="account-btn register-btn">
+                                Create Account
+                            </a>
+                            <a href="{% url 'login' %}" class="account-btn login-btn">
+                                Log In
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% else %}
+
+                <!-- Display only when no skills match -->
+                <div class="no-match-message" role="status">
+                    <h3>No Matching Skills Found</h3>
+                    <p>
+                        Your resume does not match any recognized skills
+                        in the job description.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        {% endif %}
+    </main>
+
+<!-- Footer -->
+ {% if not user.is_authenticated %}
+
+<footer class="site-footer">
+    <div class="footer-container">
+
+        <!-- Project Information -->
+        <div class="footer-brand">
+            <h3>AI Resume Analyzer</h3>
+            <p>
+                Analyze your resume, discover skill gaps, and understand
+                how your skills align with your target job description.
+            </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-links">
+            <h4>Quick Links</h4>
+            <a href="/">Home</a>
+            <a href="#about">About the Project</a>
+            <a href="#features">Features</a>
+        </div>
+
+        <!-- Project Details -->
+        <div class="footer-tech">
+            <h4>Built With</h4>
+            <p>Python · Django · HTML · CSS · JavaScript</p>
+            <p class="footer-note">
+                A project designed to support smarter resume preparation.
+            </p>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>
+            &copy; {% now "Y" %} AI Resume Analyzer.
+            All rights reserved.
+        </p>
+        <a href="#top" class="back-to-top">Back to top ↑</a>
+    </div>
+</footer>
+{% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const canvas = document.getElementById("skillcharts");
+
+        if (canvas) {
+            const matchedCount = {{ matched_skills|length }};
+            const missingCount = {{ missing_skills|length }};
+
+            if (matchedCount > 0 || missingCount > 0) {
+                new Chart(canvas, {
+                    type: "pie",
+                    data: {
+                        labels: [
+                            "Matched Skills",
+                            "Missing Skills"
+                        ],
+                        datasets: [{
+                            data: [
+                                matchedCount,
+                                missingCount
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+        }
+    </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const chart = document.getElementById("skillcharts");
+    const noMatch = document.querySelector(".no-match-message");
+    const target = chart || noMatch;
+
+    if (target) {
+        setTimeout(function () {
+            const position =
+                target.getBoundingClientRect().top +
+                window.scrollY - 100;
+
+            window.scrollTo({
+                top: position,
+                behavior: "smooth"
+            });
+        }, 300);
+    }
+});
+</script>
+
+</body>
+{% if user.is_authenticated %}
+    {% include "analyzer/footer.html" %}
+{% endif %}
+</html>

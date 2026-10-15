@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Analysis Details</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 30px;
+        }
+
+        .score {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 10px 15px;
+            background-color: #343a40;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Analysis Details</h1>
+
+    <p><b>Resume:</b> {{ analysis.resume_name }}</p>
+
+    <p class="score">
+        ATS Score: {{ analysis.ats_score }}%
+    </p>
+
+    <p>
+        <b>Status:</b> {{ analysis.ats_status }}
+    </p>
+
+    <h2>Matched Skills</h2>
+
+    <p>{{ analysis.matched_skills }}</p>
+
+    <h2>Missing Skills</h2>
+
+    <p>{{ analysis.missing_skills }}</p>
+
+    <h2>Recommendations</h2>
+
+    <p>{{ analysis.recommendations }}</p>
+
+    <p>
+        <b>Analyzed on:</b>
+        {{ analysis.created_at|date:"d M Y, h:i A" }}
+    </p>
+
+    <a href="{% url 'history' %}" class="back-btn">
+        Back to History
+    </a>
+
+</div>
+
+</body>
+{% include "analyzer/footer.html" %}
+</html>

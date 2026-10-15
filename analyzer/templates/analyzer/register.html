@@ -1,0 +1,291 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Register | AI Resume Analyzer</title>
+
+<link
+    rel="stylesheet"
+    href="{% static 'analyzer/style.css' %}"
+>
+
+<style>
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background: #f4f7fb;
+    }
+
+    .register-wrapper {
+        min-height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+    }
+
+    .register-card {
+        width: 100%;
+        max-width: 430px;
+        background: white;
+        padding: 40px;
+        border-radius: 14px;
+        box-shadow: 0 8px 25px rgba(31, 41, 55, 0.10);
+    }
+
+    .register-card h2 {
+        text-align: center;
+        font-size: 28px;
+        margin-bottom: 8px;
+        color: #1f2937;
+    }
+
+    .register-subtitle {
+        text-align: center;
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
+    .register-form-group {
+        margin-bottom: 20px;
+    }
+
+    .register-form-group label {
+        display: block;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #374151;
+    }
+
+    .register-form-group input {
+        width: 100%;
+        padding: 13px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 15px;
+        outline: none;
+    }
+
+    .register-form-group input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .register-button {
+        width: 100%;
+        background: #2563eb;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 13px;
+        margin-top: 5px;
+    }
+
+    .register-button:hover {
+        background: #1d4ed8;
+    }
+
+    .register-error {
+        background: #fee2e2;
+        border-left: 4px solid #dc2626;
+        border-radius: 6px;
+        color: #991b1b;
+        padding: 12px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .register-login {
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    .register-login a {
+        color: #2563eb;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .register-login a:hover {
+        text-decoration: underline;
+    }
+
+    .register-home {
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    .register-home a {
+        color: #64748b;
+        font-size: 13px;
+        text-decoration: none;
+    }
+
+    .register-home a:hover {
+        color: #2563eb;
+    }
+
+    @media (max-width: 500px) {
+        .register-card {
+            padding: 30px 22px;
+        }
+    }
+</style>
+
+</head>
+
+<body>
+
+<header class="header">
+    <div class="container">
+        <h1>AI Resume Analyzer</h1>
+        <p>
+            Create an account to save and manage your resume analyses.
+        </p>
+
+    <nav class="navbar">
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'register' %}">Register</a>
+        <a href="{% url 'login' %}">Login</a>
+    </nav>
+</div>
+
+</header>
+
+
+<main class="register-wrapper">
+
+    <section class="register-card">
+
+        <h2>Create Account</h2>
+
+        <p class="register-subtitle">
+            Register to start analyzing your resumes
+        </p>
+
+
+        {% if error %}
+            <div class="error-message" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+
+            <div class="register-form-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Choose a username"
+                    autocomplete="username"
+                    required
+                >
+
+            </div>
+
+
+            <div class="register-form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Create a password"
+                    autocomplete="new-password"
+                    required
+                >
+
+            </div>
+
+
+            <div class="register-form-group">
+
+                <label for="confirm_password">
+                    Confirm Password
+                </label>
+
+                <input
+                    type="password"
+                    id="confirm_password"
+                    name="confirm_password"
+                    placeholder="Enter password again"
+                    autocomplete="new-password"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="register-button"
+            >
+                Create Account
+            </button>
+
+        </form>
+
+
+        <div class="register-login">
+
+            Already have an account?
+
+            <a href="{% url 'login' %}">
+                Login here
+            </a>
+
+        </div>
+
+
+        <div class="register-home">
+
+            <a href="{% url 'home' %}">
+                ← Back to Home
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+{% include "analyzer/footer.html" %}
+
+</body>
+
+</html>

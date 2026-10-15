@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Resume Analyzer</title>
+</head>
+<body>
+    <h1>AI Resume Analyzer & ATS Score Predictor</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        <label>Upload Resume PDF:</label><br>
+        <input type="file" name="resume" required><br><br>
+
+        <label>Paste Job Description:</label><br>
+        <textarea name="job_description" rows="10" cols="50" required></textarea><br><br>
+
+        <button type="submit">Analyze Resume</button>
+    </form>
+
+    {% if score is not none %}
+        <h2>Your ATS Score: {{ score }}%</h2>
+    {% endif %}
+</body>
+</html>
