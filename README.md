@@ -71,11 +71,8 @@ AI_Resume_Analyzer/
 ### 1. Clone the Repository
 
 ```bash
-git clone YOUR_GITHUB_REPOSITORY_URL
-cd AI_Resume_Analyzer
-```
-
-Replace `YOUR_GITHUB_REPOSITORY_URL` with your actual GitHub repository URL.
+git clone https://github.com/Monika-Pandey367/AI_Resume_Analyzer.git
+cd AI_Resume_Analyzer```
 
 ### 2. Create a Virtual Environment
 
